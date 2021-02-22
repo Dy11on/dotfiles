@@ -26,5 +26,4 @@ for game in $mygames; do
         bspc rule -a steam_app_$game desktop=^10 state=fullscreen follow=on
 done
 
-polybar example &
-
+$HOME/.config/polybar/launch.sh
