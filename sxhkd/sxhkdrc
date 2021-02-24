@@ -8,11 +8,30 @@ alt + Return
 
 # program launcher
 alt + @space
-	rofi -combi-modi window,drun,ssh -theme slate -font "JetBrainsMono Nerd Font 14" -show combi -icon-theme "Papirus" -show-icons	
+	rofi -no-config -no-lazy-grab -show drun -modi drun -theme ~/.config/polybar/shades/scripts/rofi/launcher.rasi
+
 
 # make sxhkd reload its configuration files:
 alt + Escape
 	pkill -USR1 -x sxhkd
+
+# Music Spotify Commands
+super + 6
+	playerctl previous spotify
+
+super + 7
+	playerctl play-pause spotify
+super + 8
+	playerctl next spotify
+
+
+# Lock screen
+
+super + l
+	light-locker-command -l
+
+
+
 
 #
 # bspwm hotkeys
