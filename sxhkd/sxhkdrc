@@ -30,7 +30,9 @@ super + 8
 super + l
 	light-locker-command -l
 
-
+# screenshot
+ctrl + shift + a
+	maim -s | xclip -selection clipboard -t image/png
 
 
 #

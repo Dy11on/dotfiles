@@ -2,7 +2,11 @@
 
 pgrep -x sxhkd > /dev/null || sxhkd &
 
-bspc monitor -d I II III IV V VI VII VIII IX X
+bspc monitor HDMI-0 -d 1 2 3 4 5 
+bspc monitor DVI-D-0 -d 6 7 8 9 0 
+
+# Swaps the monitors so my workspaces are on main hdmi monitor
+bspc monitor DVI-D-0 -s HDMI-0
 
 bspc config border_width         5 
 bspc config window_gap          12
@@ -18,13 +22,13 @@ bspc rule -a Chromium desktop='^2'
 bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
-bspc rule -a steam state=floating focus=on
+#bspc rule -a steam state=floating focus=on
 
-mygames=$(ls ~/.steam/steam/steamapps | grep appmanifest | sed 's/[^0-9]*//g')
+#mygames=$(ls ~/.steam/steam/steamapps | grep appmanifest | sed 's/[^0-9]*//g')
 # this sed command removes everything but the digits
 
-for game in $mygames; do
-        bspc rule -a steam_app_$game desktop=^10 state=fullscreen follow=on
-done
+#for game in $mygames; do
+#        bspc rule -a steam_app_$game desktop=^10 state=fullscreen follow=on
+#done
 
-$HOME/.config/polybar/launch.sh --shades
+$HOME/.config/polybar/launch.sh 
