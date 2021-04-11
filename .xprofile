@@ -52,10 +52,12 @@ fi
 
 xclock -geometry 50x50-1+1 &
 #exec xterm -geometry 80x66+0+0 -name login
-picom  --config dotfiles/picom/picom.conf --glx-no-stencil -b 
 sxhkd &
+picom --backend xrender &
 wal -R
 ~/.fehbg &
+caffeine -a &
+redshift -l 43:-79 &
 bluetoothctl power on
 light-locker &
 exec bspwm

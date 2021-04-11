@@ -14,6 +14,7 @@ set nobackup
 set undodir=~/.config/nvim/undodir
 set undofile
 set signcolumn=yes
+set cursorline
 
 filetype plugin indent on
 
@@ -24,7 +25,7 @@ set rtp+=/usr/local/opt/fzf
 nnoremap <silent> <Leader>l :nohl<CR>
 
 call plug#begin('~/.vim/plugged')
-"Plug 'gruvbox-community/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 Plug 'dylanaraps/wal.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -33,12 +34,16 @@ Plug 'airblade/vim-rooter'
 Plug 'unblevable/quick-scope'
 Plug 'itchyny/lightline.vim'
 Plug 'vimwiki/vimwiki'
+Plug 'jiangmiao/auto-pairs'
+Plug 'psliwka/vim-smoothie'
+" To toggle hartime run :HardTimeOn/Off
+Plug 'takac/vim-hardtime'
 call plug#end()
 
-"colorscheme gruvbox
-colorscheme wal
+colorscheme gruvbox
+"colorscheme wal
 "set bg=dark
-"highlight Normal guibg=none
+highlight Normal ctermbg=NONE guibg=none
 
 nnoremap <silent> <Leader>r :Rg<CR>
 nnoremap <silent> <Leader>ff :FZF<CR>
@@ -61,3 +66,9 @@ let g:lightline = {'colorscheme': 'wal'}
 "vimwiki markdown change 
 let g:vimwiki_list = [{'path': '~/vimwiki/',
                       \ 'syntax': 'markdown', 'ext': '.md'}]
+
+"vim rooter set rooter
+
+let g:smoothie_update_interval = 10
+let g:smoothie_speed_constant_factor = 20
+let g:smoothie_speed_linear_factor = 20
