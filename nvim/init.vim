@@ -2,6 +2,7 @@ syntax on
 set number
 set relativenumber
 set autoindent
+set noexpandtab
 set ignorecase
 set smartcase
 set nohlsearch
@@ -31,13 +32,19 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
+" Nice line under f and t for quick finding
 Plug 'unblevable/quick-scope'
 Plug 'itchyny/lightline.vim'
 Plug 'vimwiki/vimwiki'
-Plug 'jiangmiao/auto-pairs'
+Plug 'tmsvg/pear-tree'
+Plug 'airblade/vim-gitgutter'
 Plug 'psliwka/vim-smoothie'
+Plug 'Yggdroot/indentLine'
 " To toggle hartime run :HardTimeOn/Off
 Plug 'takac/vim-hardtime'
+Plug 'christoomey/vim-tmux-navigator' 
+" gc to comment out multiple lines at once in visual mode
+Plug 'tpope/vim-commentary'
 call plug#end()
 
 colorscheme gruvbox
@@ -46,7 +53,7 @@ colorscheme gruvbox
 highlight Normal ctermbg=NONE guibg=none
 
 nnoremap <silent> <Leader>r :Rg<CR>
-nnoremap <silent> <Leader>ff :FZF<CR>
+nnoremap <silent> <Leader>ff :GFiles<CR>
 
 source $HOME/.config/nvim/coc.vim
 
@@ -54,7 +61,7 @@ source $HOME/.config/nvim/coc.vim
 
 
 " quickscope highlight only when pressing f and t 
-let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+let g:qs_highlight_on_keys = ['f','F','t','T']
 " quickscope change colors
 highlight QuickScopePrimary guifg='#17ebd6' gui=underline ctermfg=155 cterm=underline
 highlight QuickScopeSecondary guifg='#ec80ff' gui=underline ctermfg=81 cterm=underline
@@ -72,3 +79,27 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 let g:smoothie_update_interval = 10
 let g:smoothie_speed_constant_factor = 20
 let g:smoothie_speed_linear_factor = 20
+
+" setting update time to see if coc autocompletion is faster
+set updatetime=100
+
+" Setting tabs to lines for easier reading
+set listchars=tab:\|\ 
+set list 
+" indentLine config, dont know if i need to delete above
+let g:indentLine_char = '|'
+
+
+" Remapping local and global marks
+nnoremap mn mN
+nnoremap 'n 'N
+nnoremap me mE
+nnoremap 'e 'E
+nnoremap mi mI
+nnoremap 'i 'I
+
+" Command and Conquer jump error remaps
+try
+    nnoremap <silent> <Leader>n :call CocAction('diagnosticNext')<cr>
+    nnoremap <silent> <Leader>e :call CocAction('diagnosticPrevious')<cr>
+endtry

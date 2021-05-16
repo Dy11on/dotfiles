@@ -60,4 +60,5 @@ caffeine -a &
 redshift -l 43:-79 &
 bluetoothctl power on
 light-locker &
+unclutter &
 exec bspwm
