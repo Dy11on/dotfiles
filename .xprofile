@@ -61,4 +61,5 @@ redshift -l 43:-79 &
 bluetoothctl power on
 light-locker &
 unclutter &
+$HOME/dotfiles/bspwm/floating.sh &
 exec bspwm

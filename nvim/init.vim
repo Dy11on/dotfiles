@@ -45,6 +45,9 @@ Plug 'takac/vim-hardtime'
 Plug 'christoomey/vim-tmux-navigator' 
 " gc to comment out multiple lines at once in visual mode
 Plug 'tpope/vim-commentary'
+" plugin for saving vim sessions (mainly for tmux ressurect saving)
+Plug 'tpope/vim-obsession'
+
 call plug#end()
 
 colorscheme gruvbox
