@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # wm independent hotkeys
 #
@@ -34,6 +36,13 @@ super + l
 ctrl + shift + a
 	maim -s | xclip -selection clipboard -t image/png
 
+# screenshot save to folder
+ctrl + shift + r
+	maim -s ~/Pictures/(date).png
+
+# screenshot save to folder
+ctrl + shift + s
+	~/dotfiles/polybar/launch.sh
 
 #
 # bspwm hotkeys

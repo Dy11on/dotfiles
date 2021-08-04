@@ -22,6 +22,7 @@ bspc rule -a Chromium desktop='^2'
 bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
+bspc rule -a feh state=floating
 #bspc rule -a steam state=floating focus=on
 
 #mygames=$(ls ~/.steam/steam/steamapps | grep appmanifest | sed 's/[^0-9]*//g')

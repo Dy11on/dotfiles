@@ -10,7 +10,7 @@ disabled = false
 
 # first param ─┌
 [username]
-format = "[ User<$user>]($style)::"
+format = "[ User<Dyllon>]($style)::"
 style_user = "#FFB266"
 style_root = "bold red"
 show_always = true
@@ -27,7 +27,7 @@ disabled = true
 [directory]
 truncation_length = 0
 truncate_to_repo = true
-truncation_symbol = "repo:"
+truncation_symbol = ""
 
 # before all the version info (python, nodejs, php, etc.)
 [git_status]
@@ -68,6 +68,9 @@ disabled = true
 [character]
 success_symbol = "\n[─➜](bold green)"
 error_symbol = "\n[─](bold red)[×](bold red)"
+
+[gcloud]
+disabled = true
 
 # symbols
 

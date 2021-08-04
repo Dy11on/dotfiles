@@ -62,4 +62,5 @@ bluetoothctl power on
 light-locker &
 unclutter &
 $HOME/dotfiles/bspwm/floating.sh &
+tmux source-file ~/.tmux.conf
 exec bspwm
