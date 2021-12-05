@@ -12,6 +12,7 @@ set hidden
 set scrolloff=8
 set noswapfile
 set nobackup
+set shortmess+=c
 set undodir=~/.config/nvim/undodir
 set undofile
 set signcolumn=yes
@@ -30,19 +31,29 @@ filetype indent on
 let mapleader = " "
 set rtp+=/usr/local/opt/fzf
 
+" Keeping the cursor middle positioned
+augroup KeepCentered
+  autocmd!
+  autocmd CursorMoved * normal! zz
+augroup END
+
+inoremap <CR> <C-\><C-O><C-E><CR>
+inoremap <BS> <BS><C-O>zz
+nnoremap o <C-E>o
+
+
 " removes any highlighting
 nnoremap <silent> <Leader>l :nohl<CR>
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'gruvbox-community/gruvbox'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'dylanaraps/wal.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
 " Nice line under f and t for quick finding
 Plug 'unblevable/quick-scope'
-Plug 'itchyny/lightline.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'airblade/vim-gitgutter'
 Plug 'psliwka/vim-smoothie'
@@ -54,6 +65,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 " plugin for saving vim sessions (mainly for tmux ressurect saving)
 Plug 'tpope/vim-obsession'
+Plug 'tpope/vim-eunuch'
 
 " native lsp babyyyy
 Plug 'neovim/nvim-lspconfig'
@@ -62,17 +74,28 @@ Plug 'kyazdani42/nvim-web-devicons'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-Plug 'windwp/nvim-autopairs'
-Plug 'hrsh7th/nvim-compe'
+Plug 'nvim-lualine/lualine.nvim'
+" nvim cmp plugins
+Plug 'hrsh7th/nvim-cmp', {'branch': 'main'} 
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/cmp-buffer', {'branch': 'main'}
+Plug 'hrsh7th/cmp-path', {'branch': 'main'}
+Plug 'hrsh7th/cmp-nvim-lsp', {'branch': 'main'}
+Plug 'onsails/lspkind-nvim'
+" cmp section ends
+"Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'phaazon/hop.nvim'
+Plug 'simrat39/rust-tools.nvim'
+Plug 'williamboman/nvim-lsp-installer'
 
 call plug#end()
 
-lua require'colorizer'.setup()
-
 lua << EOF
 local nvim_lsp = require('lspconfig')
+
+
 
 -- Use an on_attach function to only map the following keys 
 -- after the language server attaches to the current buffer
@@ -102,99 +125,43 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>ld', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
   buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', '<space>n', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  buf_set_keymap('n', '<space>gq', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
   buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
 
 end
 
--- Use a loop to conveniently call 'setup' on multiple servers and
--- map buffer local keybindings when the language server attaches
-local servers = { "html", "rust_analyzer","dockerls", "yamlls", "pyright"}
-for _, lsp in ipairs(servers) do
-  nvim_lsp[lsp].setup {
-    on_attach = on_attach,
-    flags = {
-      debounce_text_changes = 150,
+ -- Use a loop to conveniently call 'setup' on multiple servers and
+ -- map buffer local keybindings when the language server attaches
+
+local lsp_installer = require("nvim-lsp-installer")
+
+-- Register a handler that will be called for all installed servers.
+-- Alternatively, you may also register handlers on specific server instances instead (see example below).
+lsp_installer.on_server_ready(function(server)
+    local opts = {
+	flags = {
+		debounce_text_changes = 500,
+	}
     }
-  }
-end
+
+    -- (optional) Customize the options passed to the server
+    -- if server.name == "tsserver" then
+    --     opts.root_dir = function() ... end
+    -- end
+
+    -- This setup() function is exactly the same as lspconfig's setup function.
+    -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+    server:setup(opts)
+end)
 EOF
 
-
-
-
-
-" nvim compe setup
-
+" Hop nvim setup
 
 lua << EOF
--- Compe setup
-require'compe'.setup {
-  enabled = true;
-  autocomplete = true;
-  debug = false;
-  min_length = 1;
-  preselect = 'always';
-  throttle_time = 80;
-  source_timeout = 200;
-  incomplete_delay = 400;
-  max_abbr_width = 100;
-  max_kind_width = 100;
-  max_menu_width = 100;
-  documentation = true;
-
-  source = {
-    path = true;
-    nvim_lsp = true;
-  };
-}
-
-local t = function(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
-end
-
-local check_back_space = function()
-    local col = vim.fn.col('.') - 1
-    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-        return true
-    else
-        return false
-    end
-end
-
--- Use (s-)tab to:
---- move to prev/next item in completion menuone
---- jump to prev/next snippet's placeholder
-_G.tab_complete = function()
-  if vim.fn.pumvisible() == 1 then
-    return t "<C-n>"
-  elseif check_back_space() then
-    return t "<Tab>"
-  else
-    return vim.fn['compe#complete']()
-  end
-end
-_G.s_tab_complete = function()
-  if vim.fn.pumvisible() == 1 then
-    return t "<C-p>"
-  else
-    return t "<S-Tab>"
-  end
-end
-
-
-
-vim.api.nvim_set_keymap("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
-vim.api.nvim_set_keymap("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
-vim.api.nvim_set_keymap("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
-vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+require'hop'.setup()
+vim.api.nvim_set_keymap('n', 'f', "<cmd>HopWord<cr>", {})
 EOF
 
-inoremap <silent><expr> <C-Space> compe#complete()
-inoremap <silent><expr> <CR>      compe#confirm(luaeval("require 'nvim-autopairs'.autopairs_cr()"))
-inoremap <silent><expr> <C-e>     compe#close('<C-e>')
-inoremap <silent><expr> <C-f>     compe#scroll({ 'delta': +4 })
-inoremap <silent><expr> <C-d>     compe#scroll({ 'delta': -4 })
 
 
 " Telescope keys
@@ -243,17 +210,20 @@ require('telescope').setup{
     buffer_previewer_maker = require'telescope.previewers'.buffer_previewer_maker
   }
 }
-EOF
 
-" neovim auto pairs hotkeys
+local actions = require("telescope.actions")
 
-lua << EOF
-require('nvim-autopairs').setup()
-require("nvim-autopairs.completion.compe").setup({
-  map_cr = true, --  map <CR> on insert mode
-  map_complete = true -- it will auto insert `(` after select function or method item
+require("telescope").setup({
+    defaults = {
+        mappings = {
+            i = {
+                ["<esc>"] = actions.close,
+            },
+        },
+    },
 })
 EOF
+
 
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
@@ -261,22 +231,93 @@ nnoremap <leader>r <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
+" rust tools setup
+lua <<EOF
+require('rust-tools').setup({})
+require('rust-tools.inlay_hints').set_inlay_hints()
+EOF
+" local opts = {
+"     tools = { -- rust-tools options
+"         autoSetHints = true,
+"         hover_with_actions = true,
+"         inlay_hints = {
+"             show_parameter_hints = false,
+"             parameter_hints_prefix = "",
+"             other_hints_prefix = "",
+"         },
+"     },
 
+"     -- all the opts to send to nvim-lspconfig
+"     -- these override the defaults set by rust-tools.nvim
+"     -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
+"     server = {
+"         -- on_attach is a callback called when the language server attachs to the buffer
+"         -- on_attach = on_attach,
+"         settings = {
+"             -- to enable rust-analyzer settings visit:
+"             -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
+"             ["rust-analyzer"] = {
+"                 -- enable clippy on save
+"                 checkOnSave = {
+"                     command = "clippy"
+"                 },
+"             }
+"         }
+"     },
+" }
 
-" nvim autopairs pairs npairs
-lua << EOF
-require('nvim-autopairs').setup({
-    pairs_map = {
-        ["'"] = "",
-    }
+" LSP Kind, emojis for autocompletion
+lua <<EOF
+require('lspkind').init({
+    -- enables text annotations
+    --
+    -- default: true
+    with_text = true,
+
+    -- default symbol map
+    -- can be either 'default' (requires nerd-fonts font) or
+    -- 'codicons' for codicon preset (requires vscode-codicons font)
+    --
+    -- default: 'default'
+    preset = 'codicons',
+
+    -- override preset symbols
+    --
+    -- default: {}
+    symbol_map = {
+      Text = "",
+      Method = "",
+      Function = "",
+      Constructor = "",
+      Field = "ﰠ",
+      Variable = "",
+      Class = "ﴯ",
+      Interface = "",
+      Module = "",
+      Property = "ﰠ",
+      Unit = "塞",
+      Value = "",
+      Enum = "",
+      Keyword = "",
+      Snippet = "",
+      Color = "",
+      File = "",
+      Reference = "",
+      Folder = "",
+      EnumMember = "",
+      Constant = "",
+      Struct = "פּ",
+      Event = "",
+      Operator = "",
+      TypeParameter = ""
+    },
 })
-
-
 EOF
 
 
-
-colorscheme gruvbox
+let g:tokyonight_style = "night"
+colorscheme tokyonight
+" require('rust-tools').setup(opts)
 "colorscheme wal
 "set bg=dark
 highlight Normal ctermbg=NONE guibg=none
@@ -308,8 +349,150 @@ let g:smoothie_update_interval = 10
 let g:smoothie_speed_constant_factor = 20
 let g:smoothie_speed_linear_factor = 20
 
+" nvim-cmp settings
+lua <<EOF
+local cmp = require'cmp'
+local lspkind = require('lspkind')
+cmp.setup({
+  -- Enable LSP snippets
+  snippet = {
+    expand = function(args)
+        vim.fn["vsnip#anonymous"](args.body)
+    end,
+  },
+  formatting = {
+    format = function(entry, vim_item)
+    -- fancy icons and a name of kind
+    vim_item.kind = require("lspkind").presets.default[vim_item.kind] .. " " .. vim_item.kind
+
+    -- set a name for each source
+    vim_item.menu = ({
+      buffer = "[Buffer]",
+      nvim_lsp = "[LSP]",
+      luasnip = "[LuaSnip]",
+      nvim_lua = "[Lua]",
+      latex_symbols = "[Latex]",
+    })[entry.source.name]
+    return vim_item
+    end
+  },
+  mapping = {
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    -- Add tab support
+    ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+    ['<Tab>'] = cmp.mapping.select_next_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm({
+      behavior = cmp.ConfirmBehavior.Insert,
+      select = true,
+    })
+  },
+
+  -- Installed sources
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' },
+    { name = 'path' },
+    { name = 'buffer' },
+  },
+})
+EOF
+
+" VSCode highlight colors for nvim-cmp
+" gray
+highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=#808080
+" blue
+highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
+highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
+" light blue
+highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
+highlight! CmpItemKindInterface guibg=NONE guifg=#9CDCFE
+highlight! CmpItemKindText guibg=NONE guifg=#9CDCFE
+" pink
+highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
+highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
+" front
+highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
+highlight! CmpItemKindProperty guibg=NONE guifg=#D4D4D4
+highlight! CmpItemKindUnit guibg=NONE guifg=#D4D4D4
+
+" Code navigation shortcuts lsp shortcuts
+nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
+nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
+nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+nnoremap <silent> gd    <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> ga    <cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <leader>q <cmd>lua vim.lsp.diagnostic.set_loclist()<CR>
+" Show diagnostic popup on cursor hold
+"autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()
+
+" Goto previous/next diagnostic warning/error
+nnoremap <silent> <leader>e <cmd>lua vim.lsp.diagnostic.goto_prev()<CR>
+nnoremap <silent> <leader>n <cmd>lua vim.lsp.diagnostic.goto_next()<CR>
+
+
+
+
+
+"cmp source stuff
+" lua << EOF
+" local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+" require'lspconfig'.rust_analyzer.setup {
+"   capabilities = capabilities,
+" }
+" EOF
+
+" lsp saga settings
+" lua << EOF
+" local saga = require 'lspsaga'
+" saga.init_lsp_saga()
+" EOF
+
+lua << EOF
+require'lualine'.setup {
+  options = {
+    icons_enabled = true,
+    theme = 'tokyonight',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {},
+    always_divide_middle = true,
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
+}
+EOF
+
+
+
 " setting update time to see if coc autocompletion is faster
 set updatetime=100
+
 
 " Setting tabs to lines for easier reading
 set listchars=tab:\|\ 
@@ -326,6 +509,8 @@ nnoremap 'e 'E
 nnoremap mi mI
 nnoremap 'i 'I
 
+" Paste for last yank that wasn't delete
+nnoremap <leader>p "0p
 
 nnoremap <silent> <leader><leader> :source ~/dotfiles/nvim/init.vim<CR>
 nnoremap <silent> <leader>nv :e ~/dotfiles/nvim/init.vim<CR>
@@ -333,8 +518,8 @@ nnoremap <silent> <leader>nv :e ~/dotfiles/nvim/init.vim<CR>
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
-vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
+vnoremap J :m '>+1<CR>gv=gv
 nnoremap <leader>j :m .+1<CR>==
 nnoremap <leader>k :m .-2<CR>==
 
@@ -343,3 +528,18 @@ nnoremap <leader>k :m .-2<CR>==
 nmap <C-s> <Plug>MarkdownPreview
 nmap <C-t> <Plug>MarkdownPreviewStop
 nmap <C-p> <Plug>MarkdownPreviewToggle
+
+" Split Vertical buffer
+nnoremap <leader>sv :vs<CR>
+" Create new buffer
+nnoremap <leader>bn :enew<CR>
+" close buffer
+nnoremap <leader>bd :bd<CR>
+" Cycle buffers
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprev<CR>
+
+
+" Command to set the current directory to the dir where the current file is
+command! SetCDToFileDir cd %:p:h
+nn <leader>W :SetCDToFileDir<cr>

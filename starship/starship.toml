@@ -10,7 +10,7 @@ disabled = false
 
 # first param ─┌
 [username]
-format = "[ User<Dyllon>]($style)::"
+format = "[ User<Jimmy>]($style)::"
 style_user = "#FFB266"
 style_root = "bold red"
 show_always = true

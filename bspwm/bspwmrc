@@ -23,6 +23,10 @@ bspc rule -a mplayer2 state=floating
 bspc rule -a Kupfer.py focus=on
 bspc rule -a Screenkey manage=off
 bspc rule -a feh state=floating
+bspc rule -a brave desktop="^1"
+bspc rule -a Steam desktop="^3"
+bspc rule -a discord desktop="^5"
+bspc rule -a Spotify desktop="^6"
 #bspc rule -a steam state=floating focus=on
 
 #mygames=$(ls ~/.steam/steam/steamapps | grep appmanifest | sed 's/[^0-9]*//g')

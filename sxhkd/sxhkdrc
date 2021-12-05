@@ -10,8 +10,7 @@ alt + Return
 
 # program launcher
 alt + space
-	rofi -no-config -no-lazy-grab -show drun -modi drun -theme ~/.config/polybar/shades/scripts/rofi/launcher.rasi
-
+	.config/rofi/launchers/colorful/launcher.sh
 
 # make sxhkd reload its configuration files:
 alt + Escape
