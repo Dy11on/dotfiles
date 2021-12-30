@@ -7,6 +7,9 @@
 # terminal emulator
 alt + Return
 	alacritty
+	
+super + i ; {m,b,s,d,i}
+	{spotify,brave,steam,discord-canary,brave --incognito}
 
 # program launcher
 alt + space
