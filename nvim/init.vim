@@ -17,10 +17,11 @@ set undodir=~/.config/nvim/undodir
 set undofile
 set signcolumn=yes
 set cursorline
-set autochdir
 set completeopt=menuone,noselect
 set termguicolors
 set nocompatible
+set autochdir
+set textwidth=80
 filetype plugin on
 syntax on
 
@@ -37,6 +38,10 @@ augroup KeepCentered
   autocmd!
   autocmd CursorMoved * normal! zz
 augroup END
+
+
+" Autoapply text width to markdown files
+au BufRead,BufNewFile *.md setlocal textwidth=80
 
 inoremap <CR> <C-\><C-O><C-E><CR>
 "inoremap <BS> <BS><C-O>zz
@@ -67,6 +72,9 @@ Plug 'tpope/vim-commentary'
 " plugin for saving vim sessions (mainly for tmux ressurect saving)
 Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-eunuch'
+Plug 'ap/vim-css-color'
+Plug 'AndrewRadev/splitjoin.vim'
+"Plug 'fatih/vim-go'
 
 
 " native lsp babyyyy
@@ -80,15 +88,15 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 " nvim cmp plugins
-Plug 'hrsh7th/nvim-cmp', {'branch': 'main'} 
+Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/vim-vsnip'
-Plug 'hrsh7th/cmp-buffer', {'branch': 'main'}
-Plug 'hrsh7th/cmp-path', {'branch': 'main'}
-Plug 'hrsh7th/cmp-nvim-lsp', {'branch': 'main'}
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'onsails/lspkind-nvim'
 " cmp section ends
 "Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
-Plug 'norcalli/nvim-colorizer.lua'
+"Plug 'norcalli/nvim-colorizer.lua'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'phaazon/hop.nvim'
 Plug 'simrat39/rust-tools.nvim'
@@ -127,9 +135,9 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   buf_set_keymap('n', '<space>ld', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', '<space>n', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<space>gq', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', '<space>n', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>gq', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
   buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
 
 end
@@ -158,6 +166,10 @@ lsp_installer.on_server_ready(function(server)
     -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
     server:setup(opts)
 end)
+
+-- golang linter
+require'lspconfig'.golangci_lint_ls.setup{}
+
 EOF
 
 " Hop nvim setup
@@ -232,7 +244,7 @@ EOF
 
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>r <cmd>Telescope live_grep<cr>
+nnoremap <leader>rr <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope oldfiles<cr>
 
@@ -274,10 +286,15 @@ EOF
 " LSP Kind, emojis for autocompletion
 lua <<EOF
 require('lspkind').init({
-    -- enables text annotations
+    -- DEPRECATED (use mode instead): enables text annotations
     --
     -- default: true
-    with_text = true,
+    -- with_text = true,
+
+    -- defines how annotations are shown
+    -- default: symbol
+    -- options: 'text', 'text_symbol', 'symbol_text', 'symbol'
+    mode = 'symbol_text',
 
     -- default symbol map
     -- can be either 'default' (requires nerd-fonts font) or
@@ -385,8 +402,8 @@ cmp.setup({
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-n>'] = cmp.mapping.select_next_item(),
     -- Add tab support
-    ['<S-Tab>'] = cmp.mapping.select_prev_item(),
-    ['<Tab>'] = cmp.mapping.select_next_item(),
+    -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+	--['<Tab>'] = cmp.mapping.select_next_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
@@ -405,6 +422,7 @@ cmp.setup({
     { name = 'buffer' },
   },
 })
+
 EOF
 
 " VSCode highlight colors for nvim-cmp
@@ -594,19 +612,17 @@ nnoremap <leader>k :m .-2<CR>==
 
 
 " Markdown toggle stuff
-nmap <C-s> <Plug>MarkdownPreview
-nmap <C-t> <Plug>MarkdownPreviewStop
-nmap <C-p> <Plug>MarkdownPreviewToggle
+nnoremap <leader>mp :MarkdownPreview
+nnoremap <leader>ms :MarkdownPreviewStop
+nnoremap <leader>mt :MarkdownPreviewToggle
 
 " Split Vertical buffer
 nnoremap <leader>sv :vs<CR>
-" Create new buffer
-nnoremap <leader>bn :enew<CR>
+" Create new tab
+nnoremap <leader>tn :tabn<CR>
 " close buffer
 nnoremap <leader>bd :bd<CR>
 " Cycle buffers
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprev<CR>
 
 
 " Command to set the current directory to the dir where the current file is
@@ -649,3 +665,20 @@ vim.g.dashboard_custom_section = {
     e = {description = {'  Exit                      '}, command = 'exit'},
 }
 EOF
+
+" Hover diagnostics for lsp in this
+lua << EOF
+vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+EOF
+
+" copy and paste clipboard stuff
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
+nnoremap <leader>Y "+y$
+
+"close quickfix list fast
+nnoremap <leader>qc :ccl<CR>
+
+"For the splitjoin plugin press gS to open stuff in {} and gJ to join stuff in {}
+"
+"
