@@ -1,0 +1,6 @@
+There's a lot that needs to go into swapping polybar themes...
+Off the top of my head since a lot of stuff is reading from my dotfiles folder make sure everything is changed here
+And  in the config.ini file there is sourcing of files in the .config folder such as bar.ini and module.ini, make sure those point to the dotfile files or are symlinked to dotfiles
+
+make sure the bar is also named jimmyBar as the launch.sh file has 
+make sure the scripts in the scripts folder are also properly symlinked to the spotify folder in the .config/polybar stuff

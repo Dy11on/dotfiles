@@ -1,0 +1,4 @@
+need to add ui.track_notifications_enabled=false to the
+.config/spotify/Users/userid-user/prefs file if I keep using KDE
+
+

@@ -9,7 +9,7 @@ alt + Return
 	alacritty
 	
 super + i ; {m,b,s,d,i}
-	{spotify,brave,steam,discord-canary,brave --incognito}
+	{spotify,brave,steam,discord,brave --incognito}
 
 # program launcher
 alt + space
@@ -21,12 +21,12 @@ alt + Escape
 
 # Music Spotify Commands
 super + 6
-	playerctl previous spotify
+	playerctl -i plasma-browser-integration previous spotify
 
 super + 7
-	playerctl play-pause spotify
+	playerctl -i plasma-browser-integration play-pause spotify
 super + 8
-	playerctl next spotify
+	playerctl -i plasma-browser-integration next spotify
 
 
 # Lock screen
@@ -42,7 +42,7 @@ ctrl + shift + a
 ctrl + shift + r
 	maim -s ~/Pictures/(date).png
 
-# screenshot save to folder
+# relaunch polybar stuff
 ctrl + shift + s
 	~/dotfiles/polybar/launch.sh
 
@@ -59,7 +59,7 @@ alt + {_,shift + }w
 	bspc node -{c,k}
 
 # superernate between the tiled and monocle layout
-alt + m
+alt + z
 	bspc desktop -l next
 
 # send the newest marked node to the newest preselected node

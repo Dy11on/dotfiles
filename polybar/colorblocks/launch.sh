@@ -2,7 +2,7 @@
 
 # Add this script to your wm startup file.
 
-DIR="$HOME/dotfiles/polybar/colorblocks"
+DIR="$HOME/.config/polybar/colorblocks"
 
 # Terminate already running bar instances
 killall -q polybar
@@ -11,4 +11,4 @@ killall -q polybar
 while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 # Launch the bar
-polybar -q jimmyBar -c "$DIR"/config.ini &
+polybar -q main -c "$DIR"/config.ini &
