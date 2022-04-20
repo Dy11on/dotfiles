@@ -53,6 +53,6 @@ brave &
 steam &
 discord &
 
-#export DESKTOP_SESSION=plasma
-# exec startplasma-x11
+ # export DESKTOP_SESSION=plasma
+ # exec startplasma-x11
 exec bspwm -c ~/dotfiles/bspwm/bspwmrc

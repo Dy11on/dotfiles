@@ -1,6 +1,6 @@
-syntax on
 set number
 set relativenumber
+set mouse=a
 set autoindent
 set noexpandtab
 set ignorecase
@@ -21,7 +21,6 @@ set completeopt=menuone,noselect
 set termguicolors
 set nocompatible
 set autochdir
-set textwidth=80
 filetype plugin on
 syntax on
 
@@ -39,6 +38,11 @@ augroup KeepCentered
   autocmd CursorMoved * normal! zz
 augroup END
 
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
 " Autoapply text width to markdown files
 au BufRead,BufNewFile *.md setlocal textwidth=80
@@ -53,7 +57,13 @@ nnoremap <silent> <Leader>l :nohl<CR>
 
 call plug#begin('~/.vim/plugged')
 
+" colorschemes 
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'savq/melange'
+Plug 'ellisonleao/gruvbox.nvim'
+Plug 'catppuccin/nvim', {'as': 'catppuccin'}
+Plug 'EdenEast/nightfox.nvim' " Vim-Plug
+
 Plug 'dylanaraps/wal.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -77,70 +87,72 @@ Plug 'AndrewRadev/splitjoin.vim'
 "Plug 'fatih/vim-go'
 
 
-" native lsp babyyyy
-Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
-Plug 'kyazdani42/nvim-web-devicons'
-Plug 'kyazdani42/nvim-tree.lua'
-Plug 'glepnir/dashboard-nvim'
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-lualine/lualine.nvim'
-" nvim cmp plugins
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/vim-vsnip'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'onsails/lspkind-nvim'
+" native lsp plugins
+ Plug 'neovim/nvim-lspconfig'
+ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+ Plug 'kyazdani42/nvim-web-devicons'
+ Plug 'kyazdani42/nvim-tree.lua'
+ Plug 'glepnir/dashboard-nvim'
+ Plug 'nvim-lua/popup.nvim'
+ Plug 'nvim-lua/plenary.nvim'
+ Plug 'nvim-telescope/telescope.nvim'
+ Plug 'nvim-lualine/lualine.nvim'
+ " Null lsp is used for ALE/linting experiences, attached mypy to it and eslint
+ " so far
+ Plug 'jose-elias-alvarez/null-ls.nvim'
+ Plug 'simrat39/rust-tools.nvim'
+ Plug 'williamboman/nvim-lsp-installer'
+ Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
+
+ " nvim cmp plugins
+ Plug 'hrsh7th/nvim-cmp'
+ Plug 'hrsh7th/vim-vsnip'
+ Plug 'hrsh7th/cmp-buffer'
+ Plug 'hrsh7th/cmp-path'
+ Plug 'hrsh7th/cmp-nvim-lsp'
+ Plug 'onsails/lspkind-nvim'
 " cmp section ends
-"Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
-"Plug 'norcalli/nvim-colorizer.lua'
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'phaazon/hop.nvim'
-Plug 'simrat39/rust-tools.nvim'
-Plug 'williamboman/nvim-lsp-installer'
+ Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
+ Plug 'norcalli/nvim-colorizer.lua'
+ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+ Plug 'phaazon/hop.nvim'
 
 call plug#end()
 
 lua << EOF
 local nvim_lsp = require('lspconfig')
 
+-- Mappings.
+-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+local opts = { noremap=true, silent=true }
+vim.api.nvim_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+vim.api.nvim_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
 
-
--- Use an on_attach function to only map the following keys 
+-- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
-  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-
-  --Enable completion triggered by <c-x><c-o>
-  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   -- Mappings.
-  local opts = { noremap=true, silent=true }
-
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  -- buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<space>ld', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', '<space>n', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<space>gq', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
-  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
+
 
  -- Use a loop to conveniently call 'setup' on multiple servers and
  -- map buffer local keybindings when the language server attaches
@@ -150,26 +162,122 @@ local lsp_installer = require("nvim-lsp-installer")
 
 -- Register a handler that will be called for all installed servers.
 -- Alternatively, you may also register handlers on specific server instances instead (see example below).
-lsp_installer.on_server_ready(function(server)
-    local opts = {
-	flags = {
-		debounce_text_changes = 500,
-	}
-    }
+-- lsp_installer.on_server_ready(function(server)
+--     local opts = {
+-- 	flags = {
+-- 		debounce_text_changes = 500,
+-- 	}
+--     }
+-- 
+--     -- (optional) Customize the options passed to the server
+--     -- if server.name == "tsserver" then
+--     --     opts.root_dir = function() ... end
+--     -- end
+-- 
+--     -- This setup() function is exactly the same as lspconfig's setup function.
+--     -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+--     server:setup(opts)
+-- end)
 
-    -- (optional) Customize the options passed to the server
-    -- if server.name == "tsserver" then
-    --     opts.root_dir = function() ... end
-    -- end
+nvim_lsp.tsserver.setup({
+-- Needed for inlayHints. Merge this table with your settings or copy
+    -- it from the source if you want to add your own init_options.
+    init_options = require("nvim-lsp-ts-utils").init_options,
+    --
+    on_attach = function(client, bufnr)
+        local ts_utils = require("nvim-lsp-ts-utils")
 
-    -- This setup() function is exactly the same as lspconfig's setup function.
-    -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-    server:setup(opts)
-end)
+        -- defaults
+        ts_utils.setup({
+            debug = false,
+            disable_commands = false,
+            enable_import_on_completion = false,
 
--- golang linter
-require'lspconfig'.golangci_lint_ls.setup{}
+            -- import all
+            import_all_timeout = 5000, -- ms
+            -- lower numbers = higher priority
+            import_all_priorities = {
+                same_file = 1, -- add to existing import statement
+                local_files = 2, -- git files or files with relative path markers
+                buffer_content = 3, -- loaded buffer content
+                buffers = 4, -- loaded buffer names
+            },
+            import_all_scan_buffers = 100,
+            import_all_select_source = false,
+            -- if false will avoid organizing imports
+            always_organize_imports = true,
 
+            -- filter diagnostics
+            filter_out_diagnostics_by_severity = {},
+            filter_out_diagnostics_by_code = {},
+
+            -- inlay hints
+            auto_inlay_hints = true,
+            inlay_hints_highlight = "Comment",
+            inlay_hints_priority = 200, -- priority of the hint extmarks
+            inlay_hints_throttle = 150, -- throttle the inlay hint request
+            inlay_hints_format = { -- format options for individual hint kind
+                Type = {},
+                Parameter = {},
+                Enum = {},
+                -- Example format customization for `Type` kind:
+                -- Type = {
+                --     highlight = "Comment",
+                --     text = function(text)
+                --         return "->" .. text:sub(2)
+                --     end,
+                -- },
+            },
+
+            -- update imports on file move
+            update_imports_on_move = false,
+            require_confirmation_on_move = false,
+            watch_dir = nil,
+        })
+
+        -- required to fix code action ranges and filter diagnostics
+        ts_utils.setup_client(client)
+
+        -- no default maps, so you may want to define some here
+        local opts = { silent = true }
+        vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
+        vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspImportAll<CR>", opts)
+    end,
+})
+
+-- null ls setup
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTIN_CONFIG.md#using-local-executables
+local null_ls = require("null-ls")
+
+local sources = {
+	null_ls.builtins.formatting.black,
+        -- null_ls.builtins.diagnostics.eslint,
+	null_ls.builtins.diagnostics.mypy.with({
+		only_local = ".venv/bin",
+	}),
+	null_ls.builtins.diagnostics.flake8.with({
+		only_local = ".venv/bin",
+	}),
+	-- eslint_d for linting on save file in case?
+        -- require("null-ls").builtins.diagnostics.eslint_d,
+
+}
+
+null_ls.setup({ 
+	sources = sources,
+	flags = { debounce_text_changes = 150 },
+	debug = true,
+	on_attach = function(client)
+		if client.resolved_capabilities.document_formatting then
+		    vim.cmd([[
+		    augroup LspFormatting
+			autocmd! * <buffer>
+			autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+		    augroup END
+		    ]])
+		end
+	end,
+})
 EOF
 
 " Hop nvim setup
@@ -232,10 +340,11 @@ local actions = require("telescope.actions")
 
 require("telescope").setup({
     defaults = {
+	wrap_results = true,
         mappings = {
-            i = {
-                ["<esc>"] = actions.close,
-            },
+--            i = {
+ --               ["<esc>"] = actions.close,
+  --          },
         },
     },
 })
@@ -248,40 +357,6 @@ nnoremap <leader>rr <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope oldfiles<cr>
 
-" rust tools setup
-lua <<EOF
-require('rust-tools').setup({})
-require('rust-tools.inlay_hints').set_inlay_hints()
-EOF
-" local opts = {
-"     tools = { -- rust-tools options
-"         autoSetHints = true,
-"         hover_with_actions = true,
-"         inlay_hints = {
-"             show_parameter_hints = false,
-"             parameter_hints_prefix = "",
-"             other_hints_prefix = "",
-"         },
-"     },
-
-"     -- all the opts to send to nvim-lspconfig
-"     -- these override the defaults set by rust-tools.nvim
-"     -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
-"     server = {
-"         -- on_attach is a callback called when the language server attachs to the buffer
-"         -- on_attach = on_attach,
-"         settings = {
-"             -- to enable rust-analyzer settings visit:
-"             -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
-"             ["rust-analyzer"] = {
-"                 -- enable clippy on save
-"                 checkOnSave = {
-"                     command = "clippy"
-"                 },
-"             }
-"         }
-"     },
-" }
 
 " LSP Kind, emojis for autocompletion
 lua <<EOF
@@ -338,7 +413,8 @@ EOF
 
 
 let g:tokyonight_style = "night"
-colorscheme tokyonight
+set background=dark
+colorscheme nightfox
 " require('rust-tools').setup(opts)
 "colorscheme wal
 "set bg=dark
@@ -474,11 +550,6 @@ nnoremap <silent> <leader>n <cmd>lua vim.lsp.diagnostic.goto_next()<CR>
 " }
 " EOF
 
-" lsp saga settings
-" lua << EOF
-" local saga = require 'lspsaga'
-" saga.init_lsp_saga()
-" EOF
 
 lua << EOF
 require'lualine'.setup {
@@ -572,6 +643,7 @@ require'nvim-tree'.setup {
   }
 }
 EOF
+let NERDTreeShowHidden=1
 nnoremap <leader>nt :NvimTreeToggle<CR>
 
 
@@ -595,6 +667,14 @@ nnoremap me mE
 nnoremap 'e 'E
 nnoremap mi mI
 nnoremap 'i 'I
+nnoremap mo mO
+nnoremap 'o 'O
+nnoremap ml mL
+nnoremap 'l 'L
+nnoremap mu mU
+nnoremap 'u 'U
+nnoremap my mY
+nnoremap 'y 'Y
 
 " Paste for last yank that wasn't delete
 nnoremap <leader>p "0p
@@ -668,7 +748,7 @@ EOF
 
 " Hover diagnostics for lsp in this
 lua << EOF
-vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+--vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
 EOF
 
 " copy and paste clipboard stuff
@@ -681,4 +761,7 @@ nnoremap <leader>qc :ccl<CR>
 
 "For the splitjoin plugin press gS to open stuff in {} and gJ to join stuff in {}
 "
-"
+
+" ts/js files spacing
+autocmd Filetype javascript setlocal ts=2 sw=2 sts=0 noexpandtab
+autocmd Filetype typescript setlocal ts=2 sw=2 sts=0 noexpandtab

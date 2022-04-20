@@ -46,6 +46,10 @@ ctrl + shift + r
 ctrl + shift + s
 	~/dotfiles/polybar/launch.sh
 
+# bspwm restart
+ctrl + shift + b
+	bspc wm -r
+
 #
 # bspwm hotkeys
 #

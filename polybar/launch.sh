@@ -11,4 +11,8 @@ killall -q polybar
 while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 # Launch the bar
-polybar -q jimmyBar -c "$DIR"/config.ini &
+if [[ $(bspc query -M --names) = "HDMI-A-0" ]]; then
+	polybar -q jimmyBar -c "$DIR"/config.ini &
+else 
+	polybar -q jimmyBar -c "$DIR"/configDualMonitors.ini &
+fi
