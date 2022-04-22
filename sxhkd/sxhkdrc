@@ -8,8 +8,11 @@
 alt + Return
 	alacritty
 	
-super + i ; {m,b,s,d,i}
-	{spotify,brave,steam,discord,brave --incognito}
+super + i ; {m,b,s,i}
+	{spotify,brave,steam,brave --incognito}
+
+super + i; {d}
+	{discord --ignore-gpu-blocklist --disable-features=UseOzonePlatform --enable-features=VaapiVideoDecoder --use-gl=desktop --enable-gpu-rasterization --enable-zero-copy}
 
 # program launcher
 alt + space

@@ -1,16 +1,16 @@
 #! /bin/sh
 
 pgrep -x sxhkd > /dev/null || sxhkd &
-# Swaps the monitors so my workspaces are on main hdmi monitor
-bspc monitor HDMI-A-0 -s HDMI-A-1
 
 if [[ $(bspc query -M --names) = "HDMI-A-0" ]]; then
 	bspc monitor HDMI-A-0 -d 1 2 3 4 5 6 7 8 9 0
 else 
-	bspc monitor HDMI-A-0 -d 1 2 3 4 5 
-	bspc monitor HDMI-A-1 -d 6 7 8 9 0 
+	bspc monitor HDMI-A-1 -d 1 2 3 4 5 
+	bspc monitor HDMI-A-0 -d 6 7 8 9 0 
 fi
 
+# Swaps the monitors so my workspaces are on main hdmi monitor
+bspc monitor HDMI-A-0 -s HDMI-A-1
 
 bspc config border_width         5 
 bspc config window_gap          12
