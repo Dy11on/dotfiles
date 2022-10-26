@@ -8,3 +8,4 @@ alias checketh="sudo dmesg | grep r8169"
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/home/jimmy/gcpStuff/google-cloud-sdk/path.fish.inc' ]; . '/home/jimmy/gcpStuff/google-cloud-sdk/path.fish.inc'; end
+fish_add_path /home/jimmy/.spicetify
