@@ -96,48 +96,50 @@ Plug 'karb94/neoscroll.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 " native lsp plugins
- Plug 'neovim/nvim-lspconfig'
- Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
- " treesitter-context plugin makes the scroll bar appear when scrolling
- " through code if the function is too long
- Plug 'nvim-treesitter/nvim-treesitter-context'
- Plug 'kyazdani42/nvim-web-devicons'
- Plug 'kyazdani42/nvim-tree.lua'
- Plug 'glepnir/dashboard-nvim'
- Plug 'nvim-lua/popup.nvim'
- Plug 'nvim-lua/plenary.nvim'
- Plug 'nvim-telescope/telescope.nvim'
- Plug 'nvim-lualine/lualine.nvim'
- Plug 'windwp/nvim-autopairs'
- " temporary plugin while tree-sitter indentation is being fixed
- Plug 'yioneko/nvim-yati'
- " Null lsp is used for ALE/linting experiences, attached mypy to it and eslint
- " so far
- Plug 'jose-elias-alvarez/null-ls.nvim'
- Plug 'simrat39/rust-tools.nvim'
- Plug 'williamboman/nvim-lsp-installer'
- Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+" treesitter-context plugin makes the scroll bar appear when scrolling
+" through code if the function is too long
+Plug 'nvim-treesitter/nvim-treesitter-context'
+Plug 'kyazdani42/nvim-web-devicons'
+Plug 'kyazdani42/nvim-tree.lua'
+Plug 'glepnir/dashboard-nvim'
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-lualine/lualine.nvim'
+Plug 'windwp/nvim-autopairs'
+" temporary plugin while tree-sitter indentation is being fixed
+Plug 'yioneko/nvim-yati'
+" Null lsp is used for ALE/linting experiences, attached mypy to it and eslint
+" so far
+Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'simrat39/rust-tools.nvim'
+Plug 'williamboman/nvim-lsp-installer'
+Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
 
- " nvim cmp plugins
- Plug 'hrsh7th/nvim-cmp'
- Plug 'hrsh7th/cmp-vsnip'
- Plug 'hrsh7th/vim-vsnip'
- Plug 'hrsh7th/cmp-buffer'
- Plug 'hrsh7th/cmp-path'
- Plug 'hrsh7th/cmp-nvim-lsp'
- Plug 'onsails/lspkind-nvim'
+" nvim cmp plugins
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'onsails/lspkind-nvim'
+Plug 'L3MON4D3/LuaSnip', {'tag': 'v1.*'}
+Plug 'rafamadriz/friendly-snippets'
+Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'honza/vim-snippets'
 " cmp section ends
 
- "etc plugins
- Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
- Plug 'norcalli/nvim-colorizer.lua'
- Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
- Plug 'phaazon/hop.nvim'
- Plug 'folke/trouble.nvim'
- Plug 'kevinhwang91/nvim-bqf'
- Plug 'ThePrimeagen/harpoon'
- " plugin to link git issues <leader>gy default mapping
- Plug 'ruifm/gitlinker.nvim'
+"etc plugins
+Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
+Plug 'norcalli/nvim-colorizer.lua'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'phaazon/hop.nvim'
+Plug 'folke/trouble.nvim'
+Plug 'kevinhwang91/nvim-bqf'
+Plug 'ThePrimeagen/harpoon'
+" plugin to link git issues <leader>gy default mapping
+Plug 'ruifm/gitlinker.nvim'
 
  
  " colorscheme 
@@ -287,7 +289,7 @@ cmp.setup({
   -- Enable LSP snippets
   snippet = {
     expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body)
+	require('luasnip').lsp_expand(args.body) 
     end,
   },
   formatting = {
@@ -329,12 +331,14 @@ cmp.setup({
   -- Installed sources
   sources = {
     { name = 'nvim_lsp' },
-    { name = 'vsnip' },
+    { name = 'luasnip' },
     { name = 'path' },
     { name = 'buffer' },
   },
 })
 
+require("luasnip.loaders.from_vscode").lazy_load()
+require("luasnip.loaders.from_snipmate").lazy_load()
 
 local servers = { 'terraformls', 'rust_analyzer' }
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -1093,6 +1097,8 @@ lua << EOF
 require"gitlinker".setup()
 EOF
 
+
+" nvim-bqf section at the bottom for delimitted quickfix list
 lua << EOF
 local fn = vim.fn
 
