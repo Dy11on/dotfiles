@@ -60,6 +60,7 @@ Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'savq/melange'
 Plug 'ellisonleao/gruvbox.nvim'
 Plug 'navarasu/onedark.nvim'
+Plug 'catppuccin/nvim'
 
 
 Plug 'dylanaraps/wal.vim'
@@ -90,9 +91,13 @@ Plug 'rhysd/git-messenger.vim'
 " blame, git blob, and repo view  respectively
 Plug 'ruanyl/vim-gh-line'
 
+" latex
+Plug 'lervag/vimtex'
+
 "Plug 'fatih/vim-go'
 Plug 'vim-test/vim-test'
 Plug 'karb94/neoscroll.nvim'
+" make sure to download fd with telescope for fast file finding
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 " native lsp plugins
@@ -131,7 +136,7 @@ Plug 'honza/vim-snippets'
 " cmp section ends
 
 "etc plugins
-Plug 'glepnir/lspsaga.nvim', {'branch': 'main'}
+Plug 'nvimdev/lspsaga.nvim'
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'phaazon/hop.nvim'
@@ -145,6 +150,9 @@ Plug 'ruifm/gitlinker.nvim'
  " colorscheme 
 Plug 'EdenEast/nightfox.nvim' 
 Plug 'sainnhe/everforest'
+
+" godot stuff
+Plug 'habamax/vim-godot'
 call plug#end()
 
 lua << EOF
@@ -729,32 +737,23 @@ require'lualine'.setup {
 EOF
 
 lua << EOF
+
 require'nvim-tree'.setup { -- BEGIN_DEFAULT_OPTS
   auto_reload_on_write = true,
   disable_netrw = false,
   hijack_cursor = false,
   hijack_netrw = true,
   hijack_unnamed_buffer_when_opening = false,
-  ignore_buffer_on_setup = false,
-  open_on_setup = false,
-  open_on_setup_file = false,
   open_on_tab = false,
   sort_by = "name",
   update_cwd = false,
   view = {
     adaptive_size = true,
-    hide_root_folder = false,
     side = "left",
     preserve_window_proportions = false,
     number = false,
     relativenumber = false,
     signcolumn = "yes",
-    mappings = {
-      custom_only = false,
-      list = {
-        -- user mappings go here
-      },
-    },
   },
   renderer = {
     indent_markers = {
@@ -779,7 +778,6 @@ require'nvim-tree'.setup { -- BEGIN_DEFAULT_OPTS
     update_cwd = true,
     ignore_list = {},
   },
-  ignore_ft_on_setup = {},
   system_open = {
     cmd = "",
     args = {},
@@ -994,6 +992,7 @@ require("harpoon").setup({
 	}
 })
 EOF
+
 nnoremap ma :lua require("harpoon.mark").add_file()<cr>
 nnoremap <leader>fh :lua require("harpoon.ui").toggle_quick_menu()<cr>
 nnoremap 'n :lua require("harpoon.ui").nav_file(1)<cr>
@@ -1028,10 +1027,10 @@ nnoremap H ^
 
 "lspsaga config
 lua << EOF 
-local keymap = vim.keymap.set
-local saga = require 'lspsaga'
+ local keymap = vim.keymap.set
+ local saga = require 'lspsaga'
 -- use default config
-saga.init_lsp_saga({
+ saga.setup({
 	code_action_keys = {
 		quit = "<ESC>"
 	}
@@ -1163,3 +1162,4 @@ require('bqf').setup({
     }
 })
 EOF
+
